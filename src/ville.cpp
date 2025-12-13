@@ -41,21 +41,24 @@ float Ville::calculerPolutionTotale() {
   
   // Buildings generate pollution based on type
   for (auto& batiment : batiments) {
-    // Industrial buildings are major polluters
+    // Power plants are major polluters
     if (batiment->type == TypeBatiment::PowerPlant) {
       pollutionTotale += 15.0f; // Significant pollution
-    } 
-    else if (batiment->type == TypeBatiment::Commercial) {
+    }
+    // Commercial-like buildings (mall, cinema, bank) cause moderate pollution
+    else if (batiment->type == TypeBatiment::Mall ||
+             batiment->type == TypeBatiment::Cinema ||
+             batiment->type == TypeBatiment::Bank) {
       pollutionTotale += 5.0f; // Moderate pollution
     }
-    else if (batiment->type == TypeBatiment::House || 
+    else if (batiment->type == TypeBatiment::House ||
              batiment->type == TypeBatiment::Apartment) {
       // Residential buildings generate minimal pollution themselves
       pollutionTotale += 2.0f;
     }
     
     // Occupied buildings generate more pollution
-    if (batiment->type == TypeBatiment::House || 
+    if (batiment->type == TypeBatiment::House ||
         batiment->type == TypeBatiment::Apartment) {
       Resident *r = dynamic_cast<Resident *>(batiment.get());
       if (r) {
@@ -87,18 +90,15 @@ int Ville::calculerSatisfactionTotale() {
   float satisfactionScore = 50.0f; // Base satisfaction
   
   //positive factors
-  
+
   // Services & Amenities from buildings
   for (auto& batiment : batiments) {
     if (batiment->type == TypeBatiment::Park) {
       satisfactionScore += 8.0f; // Parks improve happiness
-    }
-    else if (batiment->type == TypeBatiment::School || 
-             batiment->type == TypeBatiment::Hospital) {
-      satisfactionScore += 10.0f; // Essential services
-    }
-    else if (batiment->type == TypeBatiment::Commercial) {
-      satisfactionScore += 5.0f; // Commerce provides jobs/goods
+    } else if (batiment->type == TypeBatiment::Cinema ||
+               batiment->type == TypeBatiment::Mall ||
+               batiment->type == TypeBatiment::Bank) {
+      satisfactionScore += 5.0f; // Commerce/leisure provides enjoyment
     }
   }
   
@@ -341,9 +341,14 @@ unsigned int Ville::calculerCapaciteEmploi() {
 }
 
 unsigned int Ville::calculerEmploiActuel() {
-  unsigned int totalJobs = calculerCapaciteEmploi();
-  unsigned int pop = static_cast<unsigned int>(calculerPopulationTotale());
-  return std::min(pop, totalJobs);
+  unsigned int employed = 0;
+  for (const auto &batiment : batiments) {
+    const Service *s = dynamic_cast<const Service *>(batiment.get());
+    if (s) {
+      employed += s->getEmployees();
+    }
+  }
+  return employed;
 }
 
 float Ville::calculerTauxChomage() {
