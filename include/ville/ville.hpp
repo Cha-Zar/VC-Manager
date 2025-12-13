@@ -28,9 +28,9 @@ public:
   float calculerPolutionTotale();
   int calculerSatisfactionTotale();
   // Employment
-  unsigned int calculerCapaciteEmploi();
-  unsigned int calculerEmploiActuel();
-  float calculerTauxChomage();
+  unsigned int calculerCapaciteEmploi() const;
+  unsigned int calculerEmploiActuel() const;
+  float calculerTauxChomage() const;
   void assignerEmplois(); // Distribute population to jobs
   void afficherStatutEmploi() const; // Display job status per building
   int calculerPopulationTotale();
