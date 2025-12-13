@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -322,10 +323,10 @@ void Ville::setPolution(float newPolution) {
 void Ville::setResources(Resources newResources) { resources = newResources; }
 
 // employment calculations
-unsigned int Ville::calculerCapaciteEmploi() {
+unsigned int Ville::calculerCapaciteEmploi() const {
   unsigned int totalJobs = 0;
-  for (auto &batiment : batiments) {
-    Service *s = dynamic_cast<Service *>(batiment.get());
+  for (const auto &batiment : batiments) {
+    const Service *s = dynamic_cast<const Service *>(batiment.get());
     if (s) {
       // Only count job slots from buildings that actually hire
       if (batiment->type == TypeBatiment::Cinema || 
@@ -340,7 +341,7 @@ unsigned int Ville::calculerCapaciteEmploi() {
   return totalJobs;
 }
 
-unsigned int Ville::calculerEmploiActuel() {
+unsigned int Ville::calculerEmploiActuel() const {
   unsigned int employed = 0;
   for (const auto &batiment : batiments) {
     const Service *s = dynamic_cast<const Service *>(batiment.get());
@@ -351,7 +352,7 @@ unsigned int Ville::calculerEmploiActuel() {
   return employed;
 }
 
-float Ville::calculerTauxChomage() {
+float Ville::calculerTauxChomage() const {
   unsigned int pop = static_cast<unsigned int>(calculerPopulationTotale());
   if (pop == 0)
     return 0.0f;
