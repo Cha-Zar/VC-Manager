@@ -160,7 +160,7 @@ Resources Ville::calculerResourcesTotale() {
   return ResourcesTotale;
 }
 
-int Ville::calculerPopulationTotale() {
+int Ville::calculerPopulationTotale() const {
   int populationTotale = 0;
   for (auto it = batiments.begin(); it != batiments.end(); ++it) {
     if ((*it)->type == TypeBatiment::House ||
@@ -173,7 +173,7 @@ int Ville::calculerPopulationTotale() {
   return populationTotale;
 }
 
-int Ville::calculerCapacitePopulation() {
+int Ville::calculerCapacitePopulation() const {
   int capaciteTotale = 0;
   for (auto it = batiments.begin(); it != batiments.end(); ++it) {
     if ((*it)->type == TypeBatiment::House ||
