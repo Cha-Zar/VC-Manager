@@ -1,0 +1,21 @@
+# .clangd - configuration for clangd LSP
+CompileFlags:
+  Add: [
+    "-I./include",
+    "-I./include/buildings",
+    "-I./include/cycle",
+    "-I./include/ville",
+    "-I./tools/imgui"
+  ]
+
+# Optional: never insert headers automatically
+HeaderInsertion: Never
+
+# Optional: enable code completion for all symbols in included headers
+AllScopesCompletion: true
+
+# Optional: treat all warnings as errors (useful for static analysis)
+WarningsAsErrors: false
+
+# Optional: enable extra clangd features
+ClangTidy: true

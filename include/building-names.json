@@ -1,0 +1,54 @@
+{
+  "House": [
+    "Maple Cottage", "Willow Haven", "Oakwood Residence", "Pineview Villa",
+    "Cedar Lodge", "Birchwood Manor", "Elm Street Home", "Forest Retreat",
+    "Meadow View", "Riverbank House", "Sunset Cottage", "Mountain Lodge",
+    "Garden Villa", "Lakeside Home", "Valley View", "Hilltop Residence",
+    "Seaside Cottage", "Country Manor", "Urban Oasis", "Suburban Nest"
+  ],
+  "Apartment": [
+    "Skyline Towers", "Urban Heights", "Metropolitan Apartments",
+    "City View Complex", "Downtown Lofts", "Riverside Apartments",
+    "Central Park Residences", "Plaza Towers", "Horizon Apartments",
+    "Summit Complex", "Pinnacle Residences", "Crestview Apartments",
+    "Gateway Towers", "Legacy Apartments", "Harmony Complex"
+  ],
+  "Park": [
+    "Central Park", "Liberty Gardens", "Tranquil Meadows", "Serenity Park",
+    "Harmony Gardens", "Peaceful Valley Park", "Bloomfield Gardens",
+    "Sunshine Park", "Greenhaven Park", "Nature's Retreat", "Community Park",
+    "Memorial Gardens", "Riverside Park", "Mountain View Park"
+  ],
+  "Cinema": [
+    "Starlight Cinema", "Grand Theater", "Royal Cinemas", "Metro Pictures",
+    "Cineplex Central", "Galaxy Theaters", "Silver Screen Cinema",
+    "Movie Palace", "Film Forum", "Picture House", "Screen Dreams",
+    "Reel Theater", "Cinema Paradiso", "Film Center"
+  ],
+  "Mall": [
+    "Metro Mall", "City Center", "Plaza Central", "Grand Arcade",
+    "Urban Marketplace", "Shopping District", "Retail Plaza",
+    "Market Square", "Galleria", "Boulevard Mall", "Town Center",
+    "Commercial Plaza", "Retail Center", "Shopping Haven"
+  ],
+  "Bank": [
+    "City National Bank", "Metropolitan Trust", "Central Federal",
+    "Unity Bank", "Prosperity Bank", "Security Trust", "Capital Bank",
+    "First National", "Community Bank", "Heritage Trust", "Guardian Bank"
+  ],
+  "PowerPlant": [
+    "City Power Station", "Metro Energy Plant", "Central Power Hub",
+    "Urban Energy Center", "Regional Power Plant", "National Grid Station",
+    "Electricity Complex", "Power Generation Plant", "Energy Center"
+  ],
+  "WaterTreatmentPlant": [
+    "City Water Works", "Metro Filtration Plant", "Central Water Treatment",
+    "Urban Purification Center", "Regional Water Plant", "Clean Water Facility",
+    "Aqua Treatment Plant", "Water Purification Center"
+  ],
+  "UtilityPlant": [
+    "City Utilities Complex", "Metro Services Plant", "Central Utilities Hub",
+    "Urban Services Center", "Regional Utilities Plant", "Public Works Complex",
+    "Municipal Services Plant", "Infrastructure Hub"
+  ]
+}
