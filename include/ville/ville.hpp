@@ -33,8 +33,8 @@ public:
   float calculerTauxChomage() const;
   void assignerEmplois(); // Distribute population to jobs
   void afficherStatutEmploi() const; // Display job status per building
-  int calculerPopulationTotale();
-  int calculerCapacitePopulation();
+  int calculerPopulationTotale() const;
+  int calculerCapacitePopulation() const;
   double calculerProfit();
   void collectProfit();
   void updatePopulation();
