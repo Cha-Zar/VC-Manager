@@ -23,6 +23,8 @@ Ville::~Ville() = default;
 // List de batiments
 void Ville::ajoutBatiment(BatPtr batiment) {
     batiments.push_back(std::move(batiment));
+    // Immediately reassign jobs to include new building's employees
+    assignerEmplois();
 }
 
 
@@ -32,6 +34,8 @@ void Ville::supprimerBatiment(int x , int y) {
     if (pos.x == x && pos.y == y) {
       budget += (*it)->getCost();
       batiments.erase(it);
+      // Immediately reassign jobs to remaining buildings
+      assignerEmplois();
       return;
     }
   }
@@ -272,9 +276,22 @@ void Ville::updatePopulation() {
 
   // Apply growth to the city population
   int delta = static_cast<int>(std::round(popVille * growthRate)) + migrants;
+  
+  // When satisfaction is very low, enforce minimum percentage decrease
+  // (not just -1, but scales with actual population)
+  if (satisfaction < 25) {
+    float minDecreasePercent = (25 - satisfaction) / 100.0f; // 0-0.25 (0-25% decrease)
+    int minDecrease = static_cast<int>(std::round(popVille * minDecreasePercent));
+    if (delta >= 0) {
+      delta = -minDecrease; // Override growth with decrease
+    } else if (delta > -minDecrease) {
+      delta = -minDecrease; // Make decrease stronger
+    }
+  }
+  
   int nouvellePopulation = popVille + delta;
 
-  // Cap at housing capacity
+  // Cap at housing capacity and ensure >= 0
   if (nouvellePopulation > capaciteTotale)
     nouvellePopulation = capaciteTotale;
   if (nouvellePopulation < 0)
@@ -311,6 +328,11 @@ void Ville::updatePopulation() {
   }
 
   setPopulation(nouvellePopulation);
+  
+  // If population reaches 0, satisfaction is automatically 0
+  if (nouvellePopulation == 0) {
+    setSatisfaction(0);
+  }
 }
 
 // Getters
