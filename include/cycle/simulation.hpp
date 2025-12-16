@@ -3,6 +3,8 @@
 
 #include "../utils.hpp"
 #include "../ville/ville.hpp"
+#include "../evenement.hpp"
+#include <memory>
 
 using namespace std;
 
@@ -26,6 +28,7 @@ public:
   float getCurrentTime() const;
   const Ville& getVille() const;
   Ville& getVille();
+  const Evenement* getEvenementActuel() const;
 
 private:
   Ville ville;
@@ -34,6 +37,10 @@ private:
   float TimePerCycle;
   float currentTime;
   SimState state;
+  
+  // Event system
+  EventManager eventManager;
+  std::unique_ptr<Evenement> evenementActuel;
 };
 
 #endif // !SIMULATION

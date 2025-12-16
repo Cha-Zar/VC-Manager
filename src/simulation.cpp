@@ -1,5 +1,6 @@
 #include "../include/cycle/simulation.hpp"
 #include "../include/buildings/batiment.hpp"
+#include "../include/evenement.hpp"
 #include <iostream>
 
 Simulation::Simulation(const string &nomVille, Difficulty difficulty)
@@ -14,6 +15,11 @@ Simulation::Simulation(const string &nomVille, Difficulty difficulty)
                                                      : 30.0);
   this->difficulty = difficulty;
   cycleActuel = 0;
+  
+  // Initialize event system
+  eventManager.initialiserEvenements();
+  evenementActuel = nullptr;
+  
   demarerCycle();
 }
 
@@ -53,8 +59,28 @@ void Simulation::terminerCycleEarly() {
 
 void Simulation::demarerCycle() {
   state = SimState::Running;
-  std::cout << "demarer working\n";
+  std::cout << "\n\n";
+  std::cout << "CYCLE " << cycleActuel + 1 << " COMMENCE\n";
+  std::cout << "\n" << std::endl;
   currentTime = 0;
+  
+  // Clear previous cycle's event
+  evenementActuel = nullptr;
+  
+  // Try to trigger a random event
+  declencherEvenement();
+}
+
+void Simulation::declencherEvenement() {
+  // Attempt to generate a random event
+  evenementActuel = eventManager.genererEvenementAleatoire(&ville);
+  
+  if (evenementActuel) {
+    // Apply the event
+    evenementActuel->appliquer(&ville);
+  } else {
+    std::cout << "Aucun événement ce cycle. Tout est calme." << std::endl;
+  }
 }
 
 void Simulation::tick(float delta) {
@@ -74,3 +100,6 @@ float Simulation::getCurrentTime() const { return currentTime; }
 SimState Simulation::getState() const { return state; }
 const Ville &Simulation::getVille() const { return ville; }
 Ville &Simulation::getVille() { return ville; }
+const Evenement* Simulation::getEvenementActuel() const { 
+  return evenementActuel.get(); 
+}

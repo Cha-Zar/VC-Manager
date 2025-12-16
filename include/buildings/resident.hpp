@@ -27,8 +27,8 @@ public:
   static float POLLUTION_PER_PERSON;
   static int BASE_CAPACITY_HOUSE;
   static int BASE_CAPACITY_APARTMENT;
-  
-  // Méthodes statiques 
+
+  // Méthodes statiques
   static void setWaterPerPerson(float value);
   static void setElectricityPerPerson(float value);
   static void setSatisfactionPerPerson(float value);
@@ -46,8 +46,7 @@ public:
   void ajouterHabitants(int nombreHabitants);
   void retirerHabitants(int nombreHabitants);
 
-  static Resident createHouse(int id, const string &nom, Ville *ville, int x,
-                              int y);
+  static BatPtr createHouse(Ville *ville, int x, int y);
 
   // Getters
   int gethabitantsActuels();

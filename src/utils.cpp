@@ -34,8 +34,9 @@ void NameGenerator::initializeNames() {
     if (initialized) return;
     
     try {
-        std::ifstream file("building_names.json");
+        std::ifstream file("building-names.json");
         if (!file.is_open()) {
+            std::cerr << "Fichier building-names.json non trouvé. Utilisation des noms par défaut." << std::endl;
             buildingNames[TypeBatiment::House] = {"Maison 1", "Maison 2", "Maison 3"};
             buildingNames[TypeBatiment::Apartment] = {"Appartement 1", "Appartement 2", "Appartement 3"};
             buildingNames[TypeBatiment::Park] = {"Parc Central", "Jardin Public", "Square"};
@@ -47,22 +48,38 @@ void NameGenerator::initializeNames() {
             buildingNames[TypeBatiment::UtilityPlant] = {"Usine des Services", "Complexe des Services"};
         } else {
             json j;
-            file >> j;
+            try {
+                file >> j;
+                std::cout << "Fichier building-names.json chargé avec succès!" << std::endl;
 
-            buildingNames[TypeBatiment::House] = j["House"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::Apartment] = j["Apartment"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::Park] = j["Park"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::Cinema] = j["Cinema"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::Mall] = j["Mall"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::Bank] = j["Bank"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::PowerPlant] = j["PowerPlant"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::WaterTreatmentPlant] = j["WaterTreatmentPlant"].get<std::vector<std::string>>();
-            buildingNames[TypeBatiment::UtilityPlant] = j["UtilityPlant"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::House] = j["House"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::Apartment] = j["Apartment"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::Park] = j["Park"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::Cinema] = j["Cinema"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::Mall] = j["Mall"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::Bank] = j["Bank"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::PowerPlant] = j["PowerPlant"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::WaterTreatmentPlant] = j["WaterTreatmentPlant"].get<std::vector<std::string>>();
+                buildingNames[TypeBatiment::UtilityPlant] = j["UtilityPlant"].get<std::vector<std::string>>();
+            } catch (const std::exception& json_error) {
+                std::cerr << "Erreur de parsing JSON: " << json_error.what() << std::endl;
+                throw;
+            }
         }
         initialized = true;
     } catch (const std::exception& e) {
         std::cerr << "Erreur lors du chargement des noms de bâtiments: " << e.what() << std::endl;
-        initialized = false;
+        // Fallback final
+        buildingNames[TypeBatiment::House] = {"Maison 1", "Maison 2", "Maison 3"};
+        buildingNames[TypeBatiment::Apartment] = {"Appartement 1", "Appartement 2", "Appartement 3"};
+        buildingNames[TypeBatiment::Park] = {"Parc Central", "Jardin Public", "Square"};
+        buildingNames[TypeBatiment::Cinema] = {"Cinéma 1", "Cinéma 2", "Cinéma 3"};
+        buildingNames[TypeBatiment::Mall] = {"Centre Commercial", "Galerie Marchande", "Shopping Center"};
+        buildingNames[TypeBatiment::Bank] = {"Banque 1", "Banque 2", "Banque 3"};
+        buildingNames[TypeBatiment::PowerPlant] = {"Centrale Électrique", "Usine d'Électricité"};
+        buildingNames[TypeBatiment::WaterTreatmentPlant] = {"Station d'Épuration", "Usine de Traitement d'Eau"};
+        buildingNames[TypeBatiment::UtilityPlant] = {"Usine des Services", "Complexe des Services"};
+        initialized = true;
     }
 }
 

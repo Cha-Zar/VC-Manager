@@ -27,7 +27,7 @@ public:
   static int BASE_EMPLOYEES_CINEMA;
   static int BASE_EMPLOYEES_MALL;
   static int BASE_EMPLOYEES_BANK;
-  
+
   // Setters
   static void setProfitPerEmployee(float value);
   static void setSatisfactionBonus(float value);
@@ -39,12 +39,9 @@ public:
 
   // Methods
   void afficheDetails() const override;
-  static Comercial createCinema(int id, const string &nom, Ville *ville, int x,
-                                int y);
-  static Comercial createMall(int id, const string &nom, Ville *ville, int x,
-                              int y);
-  static Comercial createBank(int id, const string &nom, Ville *ville, int x,
-                              int y);
+  static BatPtr createCinema(Ville *ville, int x, int y);
+  static BatPtr createMall(Ville *ville, int x, int y);
+  static BatPtr createBank(Ville *ville, int x, int y);
 
   // Getters
   double getProfit();

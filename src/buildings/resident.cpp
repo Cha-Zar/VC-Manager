@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -42,13 +43,13 @@ Resident::Resident(int id, const std::string &nom, Ville *ville,
 // Methods
 void Resident::afficheDetails() const {
   Batiment::afficheDetails();
-  std::cout << "Habitants Actuels :\t" << habitantsActuels << endl;
-  std::cout << "Capacite Habitants :\t" << capaciteHabitants << endl;
-  
-  
-  std::cout << "Eau par personne :\t" << WATER_PER_PERSON << " L/s" << endl;
-  std::cout << "Electricite par personne :\t" << ELECTRICITY_PER_PERSON << " W/s" << endl;
-  std::cout << "Satisfaction par personne :\t" << SATISFACTION_PER_PERSON << endl;
+  if (ImGui::CollapsingHeader("Resident Info", ImGuiTreeNodeFlags_DefaultOpen)) {
+  ImGui::Text("Habitants Actuels %d",habitantsActuels);
+  ImGui::Text("Capacite Habitants %d",capaciteHabitants);
+  ImGui::Text("Eau par personne : %.2f L/s",WATER_PER_PERSON);
+  ImGui::Text("Eau par personne : %.2f W/s",ELECTRICITY_PER_PERSON);
+  ImGui::Text("Satisfaction par personne : %.2f %%",SATISFACTION_PER_PERSON);
+  }
 }
 
 void Resident::ajouterHabitants(int nombreHabitants) {
@@ -70,17 +71,33 @@ void Resident::retirerHabitants(int nombreHabitants) {
   consommation.electricite = habitantsActuels * ELECTRICITY_PER_PERSON;
 }
 
-Resident Resident::createHouse(int id, const string &nom, Ville *ville, int x,
-                               int y) {
-  float pollution = POLLUTION_PER_PERSON * BASE_CAPACITY_HOUSE;
-  int satisfaction = static_cast<int>(SATISFACTION_PER_PERSON * BASE_CAPACITY_HOUSE * 10);
-  float water = WATER_PER_PERSON * BASE_CAPACITY_HOUSE;
-  float electricity = ELECTRICITY_PER_PERSON * BASE_CAPACITY_HOUSE;
-  
-  return Resident(id, nom, ville, TypeBatiment::House, satisfaction, 30.0, 
-                  water, electricity, pollution, x, y, 1, 1, 
-                  BASE_CAPACITY_HOUSE, 0);
+BatPtr Resident::createHouse(Ville *ville,
+                             int x, int y) {
+    // Auto-generate name and ID
+    string generatedName = NameGenerator::getRandomName(TypeBatiment::House);
+    Position position(x, y);
+    Surface surface(1, 1);
+    int generatedID = BuildingIDGenerator::generateID(generatedName, TypeBatiment::House, position, surface);
+    
+    float pollution = POLLUTION_PER_PERSON * BASE_CAPACITY_HOUSE;
+    int satisfaction = static_cast<int>(
+        SATISFACTION_PER_PERSON * BASE_CAPACITY_HOUSE * 10
+    );
+    float water = WATER_PER_PERSON * BASE_CAPACITY_HOUSE;
+    float electricity = ELECTRICITY_PER_PERSON * BASE_CAPACITY_HOUSE;
+
+    return BatPtr(
+        new Resident(
+            generatedID, generatedName, ville, TypeBatiment::House,
+            satisfaction, 30.0,
+            water, electricity, pollution,
+            x, y, 1, 1,
+            BASE_CAPACITY_HOUSE, 0
+        )
+    );
 }
+
+
 
 // Getters
 int Resident::gethabitantsActuels() { return habitantsActuels; }

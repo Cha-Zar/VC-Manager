@@ -22,13 +22,14 @@ Ville::~Ville() = default;
 
 // List de batiments
 void Ville::ajoutBatiment(BatPtr batiment) {
-  batiments.push_back(std::move(batiment));
-  budget -= batiment->getCost();
+    batiments.push_back(std::move(batiment));
 }
 
-void Ville::supprimerBatiment(int id) {
+
+void Ville::supprimerBatiment(int x , int y) {
   for (auto it = batiments.begin(); it != batiments.end(); ++it) {
-    if ((*it)->getID() == id) {
+    Position pos = (*it)->position;
+    if (pos.x == x && pos.y == y) {
       budget += (*it)->getCost();
       batiments.erase(it);
       return;
@@ -88,14 +89,16 @@ float Ville::calculerPolutionTotale() {
 
 //Satisfaction Calculations
 int Ville::calculerSatisfactionTotale() {
-  // If no population, satisfaction is 0% (no one to be satisfied)
-  int populationActuelle = calculerPopulationTotale();
-  if (populationActuelle == 0) {
+  // Use city population to determine if we should compute satisfaction
+  unsigned int popVille = getPopulation();
+  if (popVille == 0) {
     setSatisfaction(0);
     return 0;
   }
-  
-  float satisfactionScore = 50.0f; // Base satisfaction (only if population > 0)
+  // Occupancy and housing pressure are based on actual residents in buildings
+  int populationActuelle = calculerPopulationTotale();
+
+  float satisfactionScore = 50.0f; // Base satisfaction when city is active
   
   //positive factors
 
@@ -115,7 +118,7 @@ int Ville::calculerSatisfactionTotale() {
   
   if (capaciteTotale > 0) {
     float housingRatio = static_cast<float>(populationActuelle) / 
-                        static_cast<float>(capaciteTotale);
+              static_cast<float>(capaciteTotale);
     
     if (housingRatio < 0.5f) {
       satisfactionScore += 5.0f; // Plenty of space
@@ -141,6 +144,10 @@ int Ville::calculerSatisfactionTotale() {
   satisfactionScore = std::max(0.0f, std::min(100.0f, satisfactionScore));
   
   int finalSatisfaction = static_cast<int>(satisfactionScore);
+  // Ensure baseline 50% when the city has population
+  if (getPopulation() > 0 && finalSatisfaction < 50) {
+    finalSatisfaction = 50;
+  }
   setSatisfaction(finalSatisfaction);
   return finalSatisfaction;
 }
@@ -207,14 +214,16 @@ void Ville::collectProfit() { budget += calculerProfit(); }
 //population update
 void Ville::updatePopulation() {
   int capaciteTotale = calculerCapacitePopulation();
-  int populationActuelle = calculerPopulationTotale();
+  // Distinguish between city population and actual occupants in buildings
+  int popDansBatiments = calculerPopulationTotale();
+  int popVille = static_cast<int>(getPopulation());
 
   if (capaciteTotale == 0) {
-    // No housing: apply a small decline to avoid runaway numbers
-    int decline = static_cast<int>(std::round(populationActuelle * 0.05f));
-    int nouvellePopulation = std::max(0, populationActuelle - decline);
-    // remove inhabitants
-    int difference = nouvellePopulation - populationActuelle;
+    // No housing: apply a small decline to city population, and empty buildings if needed
+    int decline = static_cast<int>(std::round(popVille * 0.05f));
+    int nouvellePopulation = std::max(0, popVille - decline);
+    // remove occupants from buildings if city population decreased below current occupants
+    int difference = nouvellePopulation - popDansBatiments;
     if (difference < 0) {
       int toRemove = -difference;
       for (auto it = batiments.begin(); it != batiments.end() && toRemove > 0; ++it) {
@@ -232,12 +241,12 @@ void Ville::updatePopulation() {
     return;
   }
 
-  // Compute modifiers
+  // Compute modifiers based on current city state
   float satisfactionRatio = static_cast<float>(satisfaction) / 100.0f; // 0..1
   float satisfactionEffect = (static_cast<float>(satisfaction) - 50.0f) / 50.0f; // -1..1
   float pollutionRatio = polution / 100.0f; // 0..1
   float unemploymentRatio = calculerTauxChomage() / 100.0f; // 0..1
-  float density = static_cast<float>(populationActuelle) / static_cast<float>(capaciteTotale); // 0..inf
+  float density = static_cast<float>(popVille) / static_cast<float>(capaciteTotale); // 0..inf
   float overcrowding = std::max(0.0f, density - 1.0f);
 
   // Base growth rate per cycle (conservative)
@@ -246,9 +255,9 @@ void Ville::updatePopulation() {
   // Compose growth rate from factors (small balanced contributions)
   float growthRate = baseRate
       + (satisfactionEffect * 0.02f)      // satisfaction influence +/-2%
-      - (unemploymentRatio * 0.02f)      // unemployment reduces growth up to -2%
-      - (pollutionRatio * 0.03f)         // pollution reduces growth up to -3%
-      - (overcrowding * 0.05f);          // overcrowding penalizes growth
+      - (unemploymentRatio * 0.02f)       // unemployment reduces growth up to -2%
+      - (pollutionRatio * 0.03f)          // pollution reduces growth up to -3%
+      - (overcrowding * 0.05f);           // overcrowding penalizes growth
 
   // Clamp growth rate to reasonable bounds to avoid explosions
   growthRate = std::max(-0.2f, std::min(0.2f, growthRate)); // [-20%, +20%]
@@ -257,16 +266,16 @@ void Ville::updatePopulation() {
   unsigned int totalJobs = calculerCapaciteEmploi();
   unsigned int employed = calculerEmploiActuel();
   int vacancies = static_cast<int>(totalJobs > employed ? totalJobs - employed : 0);
-  int housingSpace = capaciteTotale - populationActuelle;
+  int housingSpace = capaciteTotale - popVille;
   int migrants = 0;
   if (vacancies > 0 && housingSpace > 0) {
     int potential = std::min(vacancies, housingSpace);
     migrants = static_cast<int>(std::round(potential * 0.05f)); // 5% of available positions
   }
 
-  // Apply growth
-  int delta = static_cast<int>(std::round(populationActuelle * growthRate)) + migrants;
-  int nouvellePopulation = populationActuelle + delta;
+  // Apply growth to the city population
+  int delta = static_cast<int>(std::round(popVille * growthRate)) + migrants;
+  int nouvellePopulation = popVille + delta;
 
   // Cap at housing capacity
   if (nouvellePopulation > capaciteTotale)
@@ -274,8 +283,8 @@ void Ville::updatePopulation() {
   if (nouvellePopulation < 0)
     nouvellePopulation = 0;
 
-  // Distribute population into resident buildings (same logic as before)
-  int difference = nouvellePopulation - populationActuelle;
+  // Distribute population into resident buildings relative to current occupants
+  int difference = nouvellePopulation - popDansBatiments;
 
   if (difference > 0) {
     for (auto it = batiments.begin(); it != batiments.end() && difference > 0; ++it) {
@@ -314,6 +323,24 @@ float Ville::getPolution() const { return polution; }
 unsigned int Ville::getPopulation() const { return population; }  
 int Ville::getSatisfaction() const { return satisfaction; }
 Resources Ville::getResources() const { return resources; }
+
+
+Batiment* Ville::getBatimentByPos(int x, int y) const {
+    for (const auto &batimentPtr : batiments) {
+        const Batiment &bat = *batimentPtr;
+
+        int width = bat.surface.largeur;
+        int height = bat.surface.longeur;
+
+        if (x >= bat.position.x && x < bat.position.x +  height&&
+            y >= bat.position.y && y < bat.position.y + width) {
+            return batimentPtr.get(); 
+        }
+    }
+    return nullptr;
+}
+
+
 
 // Setters
 void Ville::setBudget(double newBudget) { budget = newBudget; }

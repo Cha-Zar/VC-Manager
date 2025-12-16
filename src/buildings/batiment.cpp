@@ -1,4 +1,5 @@
 #include "../../include/buildings/batiment.hpp"
+
 #include <iostream>
 #include <string>
 
@@ -9,21 +10,20 @@ float Batiment::SATISFACTION_POPULATION_FACTOR = 0.3f;
 float Batiment::BUILDING_POLLUTION_FACTOR = 1.0f;
 float Batiment::POPULATION_BUILDING_FACTOR = 0.1f;
 
-
 void Batiment::setPollutionSatisfactionFactor(float factor) {
-    POLLUTION_SATISFACTION_FACTOR = factor;
+  POLLUTION_SATISFACTION_FACTOR = factor;
 }
 
 void Batiment::setSatisfactionPopulationFactor(float factor) {
-    SATISFACTION_POPULATION_FACTOR = factor;
+  SATISFACTION_POPULATION_FACTOR = factor;
 }
 
 void Batiment::setBuildingPollutionFactor(float factor) {
-    BUILDING_POLLUTION_FACTOR = factor;
+  BUILDING_POLLUTION_FACTOR = factor;
 }
 
 void Batiment::setPopulationBuildingFactor(float factor) {
-    POPULATION_BUILDING_FACTOR = factor;
+  POPULATION_BUILDING_FACTOR = factor;
 }
 // Constructors
 Batiment::Batiment(int id, const string &nom, Ville *ville, TypeBatiment type,
@@ -50,18 +50,24 @@ Batiment::Batiment(int id, const string &nom, Ville *ville, TypeBatiment type,
 
 // methods
 void Batiment::afficheDetails() const {
-  std::cout << "Batiment Info :" << endl;
-  std::cout << "ID :\t" << id << endl;
-  std::cout << "Nom :\t" << nom << endl;
-  std::cout << "Nom de ville :\t" << (ville ? ville->getNom() : "N/A") << endl;
-  std::cout << "effectSatisfication :\t" << effectSatisfication << endl;
-  std::cout << "consommationEau  :\t" << consommation.eau << "Liter/s" << endl;
-  std::cout << "consommationElectricite  :\t" << consommation.electricite
-            << "Watt/s" << endl;
-  std::cout << "Position : (" << position.x << ", " << position.y << ")"
-            << endl;
-  std::cout << "Surface : (" << surface.largeur << ", " << surface.longeur
-            << ")" << endl;
+  if (ImGui::CollapsingHeader("Building Info",
+                              ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::Text("ID: %d", id);
+    ImGui::Text("Name: %s", nom.c_str());
+    // Type
+    ImGui::Text("Type: %s", type == TypeBatiment::House    ? "House"
+                            : type == TypeBatiment::Cinema ? "Cinema"
+                            : type == TypeBatiment::Mall   ? "Mall"
+                            : type == TypeBatiment::Park   ? "Park"
+                                                           : "Unknown");
+    ImGui::Text("effectSatisfication %d %%", effectSatisfication);
+    ImGui::Text("Cost %.2f", cost);
+    ImGui::Text("consommationEau  : %.3f Litre/s", consommation.eau);
+    ImGui::Text("consommationElectricite  : %.3f Watt/s",
+                consommation.electricite);
+    ImGui::Text("Position : %d,%d", position.x, position.y);
+    ImGui::Text("Surface : %.0f, %.0f", surface.largeur, surface.longeur);
+  }
 }
 
 void Batiment::impacterRessources() {

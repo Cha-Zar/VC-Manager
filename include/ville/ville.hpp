@@ -22,7 +22,7 @@ public:
   Ville &operator=(Ville &&) = default;
 
   void ajoutBatiment(BatPtr batiment);
-  void supprimerBatiment(int id);
+  void supprimerBatiment(int x, int y);
   Resources calculerconsommationTotale();
   Resources calculerResourcesTotale();
   float calculerPolutionTotale();
@@ -46,6 +46,7 @@ public:
   int getSatisfaction() const;
   float getPolution() const;
   Resources getResources() const;
+  Batiment* getBatimentByPos(int x, int y) const;
 
   // Setters
   void setBudget(double newBudget);
@@ -63,7 +64,6 @@ private:
   int satisfaction;
   float polution;
   Resources resources;
-  BatimentList newBatiments;
 };
 
 #endif // !VILLE

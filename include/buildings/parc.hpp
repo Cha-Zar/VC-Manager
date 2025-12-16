@@ -26,6 +26,9 @@ public:
   void ameliorerBienEtre();
   void diminuerPollution();
 
+  // Factory method for creating parks
+  static BatPtr createPark(Ville *ville, int x, int y);
+
 private:
   static constexpr int POLLUTION_REDUCTION_FACTOR = 10;
   int effectBienEtre;

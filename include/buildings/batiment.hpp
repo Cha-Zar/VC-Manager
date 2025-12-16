@@ -3,6 +3,9 @@
 
 #include "../utils.hpp"
 #include "../ville/ville.hpp"
+#include "../../tools/imgui/imgui.h"
+#include "../../tools/imgui/imgui_impl_sdl2.h"
+#include "../../tools/imgui/imgui_impl_sdlrenderer2.h"
 #include <string>
 
 using namespace std;

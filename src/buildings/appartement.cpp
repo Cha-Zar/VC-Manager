@@ -47,7 +47,14 @@ Appartement Appartement::createAppartement(int id, const string &nom,
   if (floorsCount > MAX_FLOOR_COUNT) {
     std::invalid_argument("Floor count connot execed 4.");
   }
-  return Appartement(id, nom, ville, TypeBatiment::Apartment,
+  
+  // Auto-generate name and ID
+  string generatedName = NameGenerator::getRandomName(TypeBatiment::Apartment);
+  Position position(x, y);
+  Surface surface(1, 1);
+  int generatedID = BuildingIDGenerator::generateID(generatedName, TypeBatiment::Apartment, position, surface);
+  
+  return Appartement(generatedID, generatedName, ville, TypeBatiment::Apartment,
                      EFFET_SATISFACTION_PER_FLOOR * floorsCount,
                      COST_PER_FLOOR * floorsCount,
                      CONSOMMATION_EAU_PER_FLOOR * floorsCount,
