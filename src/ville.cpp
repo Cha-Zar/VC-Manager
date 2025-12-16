@@ -218,14 +218,13 @@ void Ville::updatePopulation() {
   int popDansBatiments = calculerPopulationTotale();
   int popVille = static_cast<int>(getPopulation());
 
-  if (capaciteTotale == 0) {
-    // No housing: apply a small decline to city population, and empty buildings if needed
-    int decline = static_cast<int>(std::round(popVille * 0.05f));
-    int nouvellePopulation = std::max(0, popVille - decline);
-    // remove occupants from buildings if city population decreased below current occupants
-    int difference = nouvellePopulation - popDansBatiments;
-    if (difference < 0) {
-      int toRemove = -difference;
+  // If current population exceeds capacity, force it down to capacity immediately
+  if (popVille > capaciteTotale) {
+    popVille = capaciteTotale;
+    setPopulation(capaciteTotale);
+    // Remove excess inhabitants from buildings
+    int toRemove = popDansBatiments - capaciteTotale;
+    if (toRemove > 0) {
       for (auto it = batiments.begin(); it != batiments.end() && toRemove > 0; ++it) {
         if ((*it)->type == TypeBatiment::House || (*it)->type == TypeBatiment::Apartment) {
           Resident *r = dynamic_cast<Resident *>(it->get());
@@ -237,8 +236,10 @@ void Ville::updatePopulation() {
         }
       }
     }
-    setPopulation(nouvellePopulation);
-    return;
+    // If capacity is 0, we're done - population is now 0
+    if (capaciteTotale == 0) {
+      return;
+    }
   }
 
   // Compute modifiers based on current city state
