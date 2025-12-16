@@ -144,10 +144,6 @@ int Ville::calculerSatisfactionTotale() {
   satisfactionScore = std::max(0.0f, std::min(100.0f, satisfactionScore));
   
   int finalSatisfaction = static_cast<int>(satisfactionScore);
-  // Ensure baseline 50% when the city has population
-  if (getPopulation() > 0 && finalSatisfaction < 50) {
-    finalSatisfaction = 50;
-  }
   setSatisfaction(finalSatisfaction);
   return finalSatisfaction;
 }
@@ -362,12 +358,13 @@ unsigned int Ville::calculerCapaciteEmploi() const {
   for (const auto &batiment : batiments) {
     const Service *s = dynamic_cast<const Service *>(batiment.get());
     if (s) {
-      // Only count job slots from buildings that actually hire
+      // Count job slots from all buildings that hire
       if (batiment->type == TypeBatiment::Cinema || 
           batiment->type == TypeBatiment::Mall ||
           batiment->type == TypeBatiment::Bank ||
           batiment->type == TypeBatiment::PowerPlant ||
-          batiment->type == TypeBatiment::WaterTreatmentPlant) {
+          batiment->type == TypeBatiment::WaterTreatmentPlant ||
+          batiment->type == TypeBatiment::Park) {
         totalJobs += s->getEmployeesNeeded();
       }
     }
@@ -397,31 +394,62 @@ float Ville::calculerTauxChomage() const {
 
 // job assignment
 void Ville::assignerEmplois() {
-  unsigned int remainingPopulation = static_cast<unsigned int>(calculerPopulationTotale());
+  unsigned int availableWorkers = static_cast<unsigned int>(calculerPopulationTotale());
+  unsigned int totalJobs = calculerCapaciteEmploi();
   
-  // Fill jobs only in Commercial and Infrastructure buildings that employ people
+  // Collect all buildings that employ people
+  std::vector<Service*> employers;
   for (auto &batiment : batiments) {
     Service *s = dynamic_cast<Service *>(batiment.get());
-    if (s && remainingPopulation > 0) {
-      // Only assign jobs to buildings that actually employ people
-      // Commercial buildings (Comercial) and Infrastructure have employees
-      // Parks (Parc) do NOT have employees
-      if (batiment->type == TypeBatiment::Cinema || 
-          batiment->type == TypeBatiment::Mall ||
-          batiment->type == TypeBatiment::Bank ||
-          batiment->type == TypeBatiment::PowerPlant ||
-          batiment->type == TypeBatiment::WaterTreatmentPlant) {
-        
-        unsigned int capacity = s->getEmployeesNeeded();
-        unsigned int toAssign = std::min(remainingPopulation, capacity);
-        s->setEmployees(toAssign);
-        remainingPopulation -= toAssign;
-      } else {
-        // Parks and other services don't employ people
-        s->setEmployees(0);
-      }
+    if (s && (batiment->type == TypeBatiment::Cinema || 
+              batiment->type == TypeBatiment::Mall ||
+              batiment->type == TypeBatiment::Bank ||
+              batiment->type == TypeBatiment::PowerPlant ||
+              batiment->type == TypeBatiment::WaterTreatmentPlant ||
+              batiment->type == TypeBatiment::Park)) {
+      employers.push_back(s);
     } else if (s) {
       s->setEmployees(0);
+    }
+  }
+  
+  if (employers.empty() || availableWorkers == 0) {
+    // No jobs or no workers - set all to 0
+    for (auto* s : employers) {
+      s->setEmployees(0);
+    }
+    return;
+  }
+  
+  if (availableWorkers >= totalJobs) {
+    // Enough workers to fill all jobs
+    for (auto* s : employers) {
+      s->setEmployees(s->getEmployeesNeeded());
+    }
+  } else {
+    // Not enough workers - distribute proportionally
+    unsigned int workersAssigned = 0;
+    
+    // First pass: floor allocation to avoid over-allocation
+    for (auto* s : employers) {
+      unsigned int capacity = s->getEmployeesNeeded();
+      float proportion = static_cast<float>(capacity) / static_cast<float>(totalJobs);
+      unsigned int allocated = static_cast<unsigned int>(std::floor(availableWorkers * proportion));
+      allocated = std::min(allocated, capacity); // Don't exceed building capacity
+      s->setEmployees(allocated);
+      workersAssigned += allocated;
+    }
+    
+    // Second pass: distribute remaining workers one by one
+    unsigned int remaining = availableWorkers - workersAssigned;
+    for (auto* s : employers) {
+      if (remaining == 0) break;
+      unsigned int current = s->getEmployees();
+      unsigned int capacity = s->getEmployeesNeeded();
+      if (current < capacity) {
+        s->setEmployees(current + 1);
+        remaining--;
+      }
     }
   }
 }
@@ -439,7 +467,8 @@ void Ville::afficherStatutEmploi() const {
               batiment->type == TypeBatiment::Mall ||
               batiment->type == TypeBatiment::Bank ||
               batiment->type == TypeBatiment::PowerPlant ||
-              batiment->type == TypeBatiment::WaterTreatmentPlant)) {
+              batiment->type == TypeBatiment::WaterTreatmentPlant ||
+              batiment->type == TypeBatiment::Park)) {
       
       unsigned int employed = s->getEmployees();
       unsigned int capacity = s->getEmployeesNeeded();
