@@ -88,7 +88,14 @@ float Ville::calculerPolutionTotale() {
 
 //Satisfaction Calculations
 int Ville::calculerSatisfactionTotale() {
-  float satisfactionScore = 50.0f; // Base satisfaction
+  // If no population, satisfaction is 0% (no one to be satisfied)
+  int populationActuelle = calculerPopulationTotale();
+  if (populationActuelle == 0) {
+    setSatisfaction(0);
+    return 0;
+  }
+  
+  float satisfactionScore = 50.0f; // Base satisfaction (only if population > 0)
   
   //positive factors
 
@@ -104,7 +111,6 @@ int Ville::calculerSatisfactionTotale() {
   }
   
   // Population capacity satisfaction
-  int populationActuelle = calculerPopulationTotale();
   int capaciteTotale = calculerCapacitePopulation();
   
   if (capaciteTotale > 0) {

@@ -54,6 +54,8 @@ public:
   void setPolution(float newPolution);
   void setResources(Resources newResources);
 
+
+  BatimentList batiments;
 private:
   string nom;
   double budget;
@@ -61,7 +63,6 @@ private:
   int satisfaction;
   float polution;
   Resources resources;
-  BatimentList batiments;
   BatimentList newBatiments;
 };
 

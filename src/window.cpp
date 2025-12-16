@@ -22,7 +22,7 @@ Window::Window(const WindowSettings &settings) {
     return;
   }
 
-  SDL_Surface *tile_map_surface = SDL_LoadBMP("./mall.bmp");
+  SDL_Surface *tile_map_surface = SDL_LoadBMP("./320.bmp");
   if (!tile_map_surface) {
     std::cerr << "Failed to load BMP: " << SDL_GetError() << "\n";
     return;
